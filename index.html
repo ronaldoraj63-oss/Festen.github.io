@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>German Feste Präpositionen - Advanced Game</title>
+
+<style>
+body {
+    font-family: Arial;
+    text-align: center;
+    background: #f4f6f9;
+    margin: 0;
+}
+
+h1 { margin-top: 20px; }
+
+.container {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.column {
+    width: 45%;
+    min-width: 250px;
+}
+
+.card {
+    background: white;
+    margin: 6px;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid #ddd;
+    transition: 0.2s;
+}
+
+.card:hover { background: #e3f2fd; }
+
+.selected { background: #90caf9; }
+.correct { background: #a5d6a7; }
+
+button {
+    padding: 8px 14px;
+    margin: 5px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    background: #1976d2;
+    color: white;
+}
+
+#info {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>German Feste Präpositionen</h1>
+<div id="info">Score: 0 | Round: 1</div>
+<button onclick="startNewRound()">🔀 New Random Round</button>
+
+<div class="container">
+    <div class="column" id="verbs"></div>
+    <div class="column" id="meanings"></div>
+</div>
+
+<script>
+
+const allPairs = [
+["warten auf","to wait for"],
+["denken an","to think about"],
+["glauben an","to believe in"],
+["teilnehmen an","to participate in"],
+["sich freuen auf","to look forward to"],
+["sich freuen über","to be happy about"],
+["sich ärgern über","to be annoyed about"],
+["sprechen mit","to talk with"],
+["sprechen über","to talk about"],
+["träumen von","to dream of"],
+["abhängen von","to depend on"],
+["gehören zu","to belong to"],
+["passen zu","to suit"],
+["bitten um","to ask for"],
+["sich kümmern um","to take care of"],
+["sich entschuldigen für","to apologize for"],
+["anfangen mit","to start with"],
+["sich bewerben um","to apply for"],
+["sich entscheiden für","to decide on"],
+["sich erinnern an","to remember"],
+["helfen bei","to help with"],
+["warnen vor","to warn against"],
+["sich bedanken für","to thank for"],
+["achten auf","to pay attention to"],
+["arbeiten an","to work on"],
+["leiden an","to suffer from"],
+["bestehen aus","to consist of"],
+["bestehen auf","to insist on"],
+["verzichten auf","to give up"],
+["sich verlassen auf","to rely on"],
+["sich vorbereiten auf","to prepare for"],
+["sich beschäftigen mit","to deal with"],
+["sich treffen mit","to meet with"],
+["diskutieren mit","to discuss with"],
+["sich konzentrieren auf","to concentrate on"],
+["zweifeln an","to doubt"],
+["protestieren gegen","to protest against"],
+["kämpfen für","to fight for"],
+["kämpfen gegen","to fight against"],
+["gratulieren zu","to congratulate on"],
+["sich wundern über","to wonder about"],
+["sich gewöhnen an","to get used to"],
+["interessiert sein an","to be interested in"],
+["hoffen auf","to hope for"],
+["sorgen für","to provide for"],
+["sorgen um","to worry about"],
+["erzählen von","to tell about"],
+["überzeugen von","to convince of"],
+["fragen nach","to ask about"],
+["suchen nach","to search for"]
+];
+
+let score = 0;
+let round = 1;
+let selectedVerb = null;
+let matchedCount = 0;
+
+const verbsDiv = document.getElementById("verbs");
+const meaningsDiv = document.getElementById("meanings");
+const info = document.getElementById("info");
+
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
+
+function speak(text) {
+    let utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "de-DE";
+    speechSynthesis.speak(utterance);
+}
+
+function startNewRound() {
+
+    verbsDiv.innerHTML = "";
+    meaningsDiv.innerHTML = "";
+    matchedCount = 0;
+
+    let randomPairs = shuffle([...allPairs]).slice(0, 10);
+
+    let shuffledVerbs = shuffle([...randomPairs]);
+    let shuffledMeanings = shuffle([...randomPairs]);
+
+    shuffledVerbs.forEach(pair => {
+        let div = document.createElement("div");
+        div.className = "card";
+        div.innerText = pair[0] + " 🔊";
+        div.onclick = () => {
+            selectVerb(div, pair);
+            speak(pair[0]);
+        };
+        verbsDiv.appendChild(div);
+    });
+
+    shuffledMeanings.forEach(pair => {
+        let div = document.createElement("div");
+        div.className = "card";
+        div.innerText = pair[1];
+        div.onclick = () => checkMatch(div, pair);
+        meaningsDiv.appendChild(div);
+    });
+
+    info.innerText = "Score: " + score + " | Round: " + round;
+}
+
+function selectVerb(element, pair) {
+    document.querySelectorAll("#verbs .card").forEach(card => card.classList.remove("selected"));
+    element.classList.add("selected");
+    selectedVerb = pair;
+}
+
+function checkMatch(element, pair) {
+    if (!selectedVerb) return;
+
+    if (selectedVerb[1] === pair[1]) {
+        score++;
+        matchedCount++;
+
+        element.classList.add("correct");
+        document.querySelectorAll("#verbs .card").forEach(card => {
+            if (card.innerText.includes(selectedVerb[0])) {
+                card.classList.add("correct");
+            }
+        });
+
+        if (matchedCount === 10) {
+            round++;
+            setTimeout(startNewRound, 1000);
+        }
+    }
+
+    selectedVerb = null;
+    document.querySelectorAll("#verbs .card").forEach(card => card.classList.remove("selected"));
+    info.innerText = "Score: " + score + " | Round: " + round;
+}
+
+startNewRound();
+
+</script>
+
+</body>
+</html>
